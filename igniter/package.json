@@ -1,0 +1,9 @@
+{
+    "name": "tidb-igniter",
+    "version": "1.0.0",
+    "main": "igniter.js",
+    "dependencies": {
+      "dotenv": "^16.3.1",
+      "mysql2": "^3.6.0"
+    }
+  }

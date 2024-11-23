@@ -18,6 +18,25 @@ An open source GraphRAG (Knowledge Graph) built on top of [TiDB Vector](https://
 - **Live Demo**: [TiDB.AI](https://tidb.ai)
 - **Documentation**: [Docs](https://tidb.ai/docs/?utm_source=github&utm_medium=tidb.ai)
 
+## Very quick start
+
+Adapted commands from [official documentation for Docker deployment](https://tidb.ai/docs/deploy-with-docker):
+
+```bash
+docker compose build
+docker compose up -d igniter phpmyadmin  # wait 10s
+docker compose run backend /bin/sh -c "alembic upgrade head"
+docker compose run backend /bin/sh -c "python bootstrap.py"
+docker compose --profile local-embedding-reranker up
+docker compose up
+```
+
+To remove volumes:
+
+```bash
+docker volume rm autoflow_app-data autoflow_tidb-data autoflow_redis-data
+```
+
 ## Features
 
 1. **Perplexity-style Conversational Search page**: Our platform features an advanced built-in website crawler, designed to elevate your browsing experience. This crawler effortlessly navigates official and documentation sites, ensuring comprehensive coverage and streamlined search processes through sitemap URL scraping.
