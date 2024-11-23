@@ -20,7 +20,7 @@ An open source GraphRAG (Knowledge Graph) built on top of [TiDB Vector](https://
 
 ## Very quick start
 
-:warning: This repo is made to run a standalone version of TiDB and Autoflow. However, they didn't open-source the VECTOR() type in TiDB, making it impossible to run locally.
+:warning: **This repo is made to run a standalone version of TiDB and Autoflow. However, they didn't open-source the VECTOR() type in TiDB, making it impossible to run locally. They also use custom functions such as VEC_COSINE_DISTANCE, so don't hope you can replace it with MySQL 9 (which includes the VECTOR type).**
 
 Adapted commands from [official documentation for Docker deployment](https://tidb.ai/docs/deploy-with-docker):
 
