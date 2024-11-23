@@ -29,22 +29,22 @@ services:
       redis:
         condition: service_started
 
-  # frontend:
-  #   build:
-  #     context: .
-  #     dockerfile: ./frontend/Dockerfile
-  #   restart: always
-  #   depends_on:
-  #     - backend
-  #   ports:
-  #     - 3000:3000
-  #   environment:
-  #     BASE_URL: http://backend
-  #   logging:
-  #     driver: json-file
-  #     options:
-  #       max-size: "50m"
-  #       max-file: "6"
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - 3000:3000
+    environment:
+      BASE_URL: http://backend
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
 
   background:
     build:
