@@ -20,6 +20,8 @@ An open source GraphRAG (Knowledge Graph) built on top of [TiDB Vector](https://
 
 ## Very quick start
 
+:warning: This repo is made to run a standalone version of TiDB and Autoflow. However, they didn't open-source the VECTOR() type in TiDB, making it impossible to run locally.
+
 Adapted commands from [official documentation for Docker deployment](https://tidb.ai/docs/deploy-with-docker):
 
 ```bash
