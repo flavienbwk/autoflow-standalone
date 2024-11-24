@@ -53,8 +53,8 @@ services:
     restart: always
     depends_on:
       - redis
-    ports:
-      - "5555:5555"
+    expose:
+      - "5555"
     env_file:
       - .env
     volumes:
@@ -68,23 +68,15 @@ services:
 
   local-embedding-reranker:
     image: tidbai/local-embedding-reranker:v3-with-cache
-    ports:
-      - 5001:5001
+    restart: always
+    expose:
+      - 5001
     environment:
-      - PRE_LOAD_DEFAULT_EMBEDDING_MODEL=true
       # If you want to pre-load the default reranker model, change the following environment to true
-      - PRE_LOAD_DEFAULT_RERANKER_MODEL=false
+      - PRE_LOAD_DEFAULT_RERANKER_MODEL=true
       - TRANSFORMERS_OFFLINE=1
-    # volumes:
-    #   - ./local-embedding-reranker:/root/.cache/huggingface
-    # If you are using NVIDIA GPU, you can uncomment the following lines to enable GPU support
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
+    volumes:
+      - ler-data:/root/.cache/huggingface
     profiles:
       - local-embedding-reranker
 
@@ -124,10 +116,10 @@ services:
       driver: json-file
       options:
         max-size: "50m"
-        max-file: "6"
+        max-file: "1"
 
   pd0:
-    image: pingcap/pd:v7.1.6
+    image: pingcap/pd:v8.4.0
     ports:
       - "2379"
     volumes:
@@ -144,10 +136,10 @@ services:
       - --data-dir=/data/pd0
       - --config=/pd.toml
       - --log-file=/logs/pd0.log
-    restart: on-failure
+    restart: always
 
   pd1:
-    image: pingcap/pd:v7.1.6
+    image: pingcap/pd:v8.4.0
     ports:
       - "2379"
     volumes:
@@ -164,10 +156,15 @@ services:
       - --data-dir=/data/pd1
       - --config=/pd.toml
       - --log-file=/logs/pd1.log
-    restart: on-failure
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "1"
 
   pd2:
-    image: pingcap/pd:v7.1.6
+    image: pingcap/pd:v8.4.0
     ports:
       - "2379"
     volumes:
@@ -184,10 +181,15 @@ services:
       - --data-dir=/data/pd2
       - --config=/pd.toml
       - --log-file=/logs/pd2.log
-    restart: on-failure
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "1"
 
   tikv0:
-    image: pingcap/tikv:v7.1.6
+    image: pingcap/tikv:v8.4.0
     volumes:
       - ./config/tikv.toml:/tikv.toml:ro
       - tidb-data:/data
@@ -199,14 +201,20 @@ services:
       - --pd=pd0:2379,pd1:2379,pd2:2379
       - --config=/tikv.toml
       - --log-file=/logs/tikv0.log
+      - --status-addr=0.0.0.0:20180
     depends_on:
       - "pd0"
       - "pd1"
       - "pd2"
-    restart: on-failure
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "1"
 
   tikv1:
-    image: pingcap/tikv:v7.1.6
+    image: pingcap/tikv:v8.4.0
     volumes:
       - ./config/tikv.toml:/tikv.toml:ro
       - tidb-data:/data
@@ -218,14 +226,20 @@ services:
       - --pd=pd0:2379,pd1:2379,pd2:2379
       - --config=/tikv.toml
       - --log-file=/logs/tikv1.log
+      - --status-addr=0.0.0.0:20180
     depends_on:
       - "pd0"
       - "pd1"
       - "pd2"
-    restart: on-failure
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "1"
 
   tikv2:
-    image: pingcap/tikv:v7.1.6
+    image: pingcap/tikv:v8.4.0
     volumes:
       - ./config/tikv.toml:/tikv.toml:ro
       - tidb-data:/data
@@ -237,14 +251,20 @@ services:
       - --pd=pd0:2379,pd1:2379,pd2:2379
       - --config=/tikv.toml
       - --log-file=/logs/tikv2.log
+      - --status-addr=0.0.0.0:20180
     depends_on:
       - "pd0"
       - "pd1"
       - "pd2"
-    restart: on-failure
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "1"
 
   tidb:
-    image: pingcap/tidb:v7.1.6
+    image: pingcap/tidb:v8.4.0
     expose:
       - "4000"
       - "10080"
@@ -261,16 +281,46 @@ services:
       - "tikv0"
       - "tikv1"
       - "tikv2"
-    restart: on-failure
+      - "tiflash0"
+    restart: always
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:10080/status"]
       interval: 10s
       timeout: 10s
       retries: 3
       start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "1"
+
+  tiflash0:
+    image: pingcap/tiflash:v8.4.0
+    restart: always
+    volumes:
+      - ./config/tiflash.toml:/tiflash.toml:ro
+      - tiflash0-data:/data
+      - ./logs:/logs
+    expose:
+      - "3930"
+    command:
+      - --config-file=/tiflash.toml
+      - --log-file=/logs/tiflash0.log
+    depends_on:
+      - "pd0"
+      - "pd1"
+      - "pd2"
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "1"
 
 volumes:
   tidb-data:
   pd-data:
   redis-data:
   app-data:
+  ler-data:
+  tiflash0-data:

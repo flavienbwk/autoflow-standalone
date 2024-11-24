@@ -20,8 +20,6 @@ An open source GraphRAG (Knowledge Graph) built on top of [TiDB Vector](https://
 
 ## Very quick start
 
-:warning: **This repo is made to run a standalone version of TiDB and Autoflow. However, they didn't open-source the VECTOR() type in TiDB, making it impossible to run locally. They also use custom functions such as VEC_COSINE_DISTANCE, so don't hope you can replace it with MySQL 9 (which includes the VECTOR type).**
-
 Adapted commands from [official documentation for Docker deployment](https://tidb.ai/docs/deploy-with-docker):
 
 ```bash
@@ -29,14 +27,13 @@ docker compose build
 docker compose up -d igniter phpmyadmin  # wait 10s
 docker compose run backend /bin/sh -c "alembic upgrade head"
 docker compose run backend /bin/sh -c "python bootstrap.py"
-docker compose --profile local-embedding-reranker up
-docker compose up
+docker compose --profile local-embedding-reranker up -d
 ```
 
 To remove volumes:
 
 ```bash
-docker volume rm autoflow_app-data autoflow_tidb-data autoflow_redis-data
+docker volume rm autoflow_app-data autoflow_tidb-data autoflow_redis-data autoflow_tiflash0-data autoflow_tiflash1-data
 ```
 
 ## Features

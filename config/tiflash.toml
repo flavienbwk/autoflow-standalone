@@ -1,0 +1,42 @@
+[storage]
+# Paths where TiFlash stores data. Multiple paths can be specified.
+# Example: "/ssd0/data,/ssd1/data"
+path = "/data"
+
+# Path for temporary files (defaults to the first directory in `path`).
+tmp_path = "/data/tmp"
+
+# Data format version for storage.
+format_version = 3
+
+[storage.main]
+## The list of directories to store the main data. More than 90% of the total data is stored in
+## the directory list.
+dir = [ "/data/tiflash-data" ]
+
+## The maximum storage capacity of each directory in storage.main.dir.
+capacity = [ 10737418240 ]
+
+[flash]
+# TiFlash cluster-specific settings.
+service_addr = "0.0.0.0:3930"  # Service address for TiFlash.
+flash_cluster_manager_path = "/data/flash_cluster_manager"
+
+[flash.flash_cluster]
+# Cluster communication settings.
+log = "/logs/flash_cluster_manager.log"  # Log file for flash cluster manager.
+
+[logger]
+# Logging configurations.
+level = "info"  # Log level: "trace", "debug", "info", "warn", "error".
+log = "/logs/tiflash.log"  # General log file.
+errorlog = "/logs/tiflash_error.log"  # Error log file.
+count = 10  # Number of log files to retain.
+
+[raft]
+# Raft-related configurations for TiFlash Proxy.
+pd_addr = "pd0:2379,pd1:2379,pd2:2379"  # PD cluster addresses.
+
+[profiles.default]
+# Default profiles for query execution.
+max_memory_usage = 10000000000  # Maximum memory usage in bytes (10 GB).
